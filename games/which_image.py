@@ -36,7 +36,6 @@ class GameState:
 
 
 def render_game():
-    st.set_page_config(layout='wide')
 
     # prepare state
 
@@ -82,23 +81,26 @@ def render_game():
 
     # render
 
-    col_left, col_right = st.columns(2)
-    col_left.title(f"Which image game")
+    # _, col, _ = st.columns(3)
+    # col.title(f"Which image game")
+
+    cols = st.columns(7)
 
     if game_state.lives > 0:
-        correct_breed = game_state.breeds[game_state.correct_id]
-        col_left.markdown(f"Which one is the *{correct_breed}*?")
+        if game_state.selected_id is None:
+            correct_breed = game_state.breeds[game_state.correct_id]
+            cols[1].markdown(f"##### Which one is the")
+            cols[1].markdown(f"### {correct_breed}?")
     else:
-        col_left.markdown("Game Over :face_with_rolling_eyes:")
-        col_left.button("New game", on_click=_on_new_game_button)
+        cols[1].markdown("Game Over :face_with_rolling_eyes:")
+        cols[1].button("New game", on_click=_on_new_game_button)
 
-    col_right.markdown("Lives: "+":dog2: " * game_state.lives)
-    col_right.markdown(f"Round: {game_state.round}")
-    combo_text = f"({game_state.combo}x combo!)" if game_state.combo > 1 else ""
-    col_right.markdown(f"Score: {game_state.score} "+combo_text)
-    col_right.markdown(f"Highscore: {game_state.player.game_data[__name__]['highscore']}")
-
-    st.markdown("---")
+    cols[2].caption("Lives")
+    cols[2].markdown(":dog2:" * game_state.lives)
+    cols[3].metric("Round", game_state.round)
+    combo_text = f"{game_state.combo}x combo!" if game_state.combo > 1 else ""
+    cols[4].metric("Score", game_state.score, combo_text)
+    cols[5].metric("Highscore", game_state.player.game_data[__name__]['highscore'])
 
     if game_state.selected_id is None:
         letters = "ABCD"
@@ -107,13 +109,15 @@ def render_game():
             col.button(f"choose {letter}", on_click=_on_choose_button, args=[i])
             col.image(url, use_column_width=True)
     else:
-        if game_state.lives > 0:
-            st.button("Next round", on_click=_on_next_round_button)
-        cols = st.columns([2 if i == game_state.correct_id else 1 for i in range(4)])
+        #cols = st.columns([2 if i == game_state.correct_id else 1 for i in range(4)])
+        cols = st.columns(4)
         for i, (col, breed, url) in enumerate(zip(cols, game_state.breeds, game_state.urls)):
             if i == game_state.correct_id:
-                col.markdown(f"**{breed}**")
+                col.markdown(f"#### {breed}")
+                if game_state.lives > 0:
+                    col.button("Next round", on_click=_on_next_round_button)
             else:
                 col.text(breed)
 
             col.image(url, use_column_width=True)
+

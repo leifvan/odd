@@ -32,7 +32,9 @@ class GameState:
     def next_round(self):
         url = get_random_images(1)[0]
         correct_breed = get_breed_from_url(url)
-        breeds = [correct_breed] + sample(get_all_breeds(), k=4)
+        all_breeds = get_all_breeds()
+        all_breeds.remove(correct_breed)
+        breeds = [correct_breed] + sample(all_breeds, k=4)
         shuffle(breeds)
 
         return GameState(
@@ -112,10 +114,10 @@ def render_game():
             left_col.markdown("Game Over :face_with_rolling_eyes:")
             left_col.button("New game", on_click=_on_new_game_button)
     else:
-        left_col.markdown("Zooms:")
+        left_col.caption("Zooms")
         left_col.markdown(":mag:"*game_state.zooms)
-    left_col.markdown(f"Score: {game_state.score}")
-    left_col.markdown(f"Highscore: {game_state.player.game_data[__name__]['highscore']}")
+    left_col.metric("Score", game_state.score)
+    left_col.metric("Highscore", game_state.player.game_data[__name__]['highscore'])
 
     if game_state.chosen_breed is None:
         if game_state.zooms > 0 and game_state.mosaic_level < len(MOSAIC_LEVEL_ZOOMS) - 1:

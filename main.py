@@ -5,6 +5,7 @@ import streamlit as st
 from games.which_image import render_game as render_which_image_game
 from games.which_breed import render_game as render_which_breed_game
 from games.mosaic import render_game as render_mosaic_game
+from background import background_base64
 
 game_renderers = {
     'Which dog is that breed?': render_which_image_game,
@@ -12,18 +13,17 @@ game_renderers = {
     'Dog mosaics!': render_mosaic_game
 }
 
-import base64
+# import base64
 
 
-@st.cache(allow_output_mutation=True)
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+# @st.cache(allow_output_mutation=True)
+# def get_base64_of_bin_file(bin_file):
+#     with open(bin_file, 'rb') as f:
+#         data = f.read()
+#     return base64.b64encode(data).decode()
 
 
 def set_png_as_page_bg(png_file):
-    bin_str = get_base64_of_bin_file(png_file)
     page_bg_img = '''
     <style>
     .stApp  {
@@ -31,7 +31,7 @@ def set_png_as_page_bg(png_file):
     background-size: cover;
     }
     </style>
-    ''' % bin_str
+    ''' % background_base64
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
@@ -49,16 +49,26 @@ if 'main_state' not in st.session_state:
 def on_game_select_button(name):
     st.session_state.main_state.selected_game = name
 
+def on_back_to_main_button():
+    st.session_state.main_state.selected_game = None
+
 
 if st.session_state.main_state.selected_game is None:
     st.title("Dog Quiz - the quiz with dogs!")
+    st.markdown("---")
 
-    """Select a game mode:"""
-
+    _, col, _ = st.columns(3)
+    col.markdown("Select a game mode:")
     for name in game_renderers:
-        st.button(name, on_click=on_game_select_button, args=[name])
+        col.button(name, on_click=on_game_select_button, args=[name])
 
 else:
+    if st.session_state.main_state.selected_game == 'Which dog is that breed?':
+        st.set_page_config(layout='wide')
+    else:
+        st.set_page_config(layout='centered')
+
+    st.button("Back to main menu", on_click=on_back_to_main_button)
     game_renderers[st.session_state.main_state.selected_game]()
 
 

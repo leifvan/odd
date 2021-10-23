@@ -24,7 +24,9 @@ class GameState:
     def next_round(self):
         url = get_unique_breed_images(1)[0]
         correct_breed = get_breed_from_url(url)
-        breeds = [correct_breed] + sample(get_all_breeds(), k=4)
+        all_breeds = get_all_breeds()
+        all_breeds.remove(correct_breed)
+        breeds = [correct_breed] + sample(all_breeds, k=4)
         shuffle(breeds)
 
         return GameState(
@@ -41,7 +43,6 @@ class GameState:
 
 
 def render_game():
-
     # prepare state
 
     if 'game_state' not in st.session_state or not isinstance(st.session_state.game_state, GameState):
@@ -85,32 +86,33 @@ def render_game():
         st.session_state.game_state = GameState(game_state.player).next_round()
 
     st.title("Which breed game")
-    left_col, right_col = st.columns(2)
+    left_col, center_col, right_col = st.columns([1, 1, 2])
 
     right_col.image(game_state.url, use_column_width=True)
 
-    left_col.markdown("Lives: " + ":dog2: " * game_state.lives)
-    left_col.markdown(f"Round: {game_state.round}")
-    combo_text = f"({game_state.combo}x combo!)" if game_state.combo > 1 else ""
-    left_col.markdown(f"Score: {game_state.score} " + combo_text)
-    left_col.markdown(f"Highscore: {game_state.player.game_data[__name__]['highscore']}")
-    left_col.markdown("---")
+    left_col.caption("Lives")
+    left_col.markdown(":dog2:" * game_state.lives)
+    left_col.metric("Round", game_state.round)
+    combo_text = f"{game_state.combo}x combo!" if game_state.combo > 1 else ""
+    left_col.metric("Score", game_state.score, combo_text)
+    left_col.metric("Highscore", game_state.player.game_data[__name__]['highscore'])
+    # left_col.markdown("---")
 
+    center_col.markdown("---")
     if game_state.selected_breed is None:
         for breed in game_state.breeds:
-            left_col.button(breed, on_click=_on_choice_button, args=[breed])
+            center_col.button(breed, on_click=_on_choice_button, args=[breed])
     else:
         if game_state.selected_breed == game_state.correct_breed:
-            left_col.markdown(f"Yes, it's a *{game_state.correct_breed}*")
+            center_col.markdown(f"Yes, it's a *{game_state.correct_breed}*")
         else:
-            left_col.markdown(f"Nope, it's a *{game_state.correct_breed}*")
+            center_col.markdown(f"Nope, it's a *{game_state.correct_breed}*")
 
         if game_state.lives > 0:
-            left_col.button("Next round", on_click=_on_next_round_button)
+            center_col.button("Next round", on_click=_on_next_round_button)
         else:
-            left_col.markdown("Game Over :face_with_rolling_eyes:")
-            left_col.button("New game", on_click=_on_new_game_button)
-
+            center_col.markdown("Game Over :face_with_rolling_eyes:")
+            center_col.button("New game", on_click=_on_new_game_button)
 
     # def _on_choose_button(button_id):
     #     game_state.selected_id = button_id
