@@ -1,12 +1,12 @@
-import requests
-import streamlit as st
 from dataclasses import dataclass
+from random import sample, shuffle
 from typing import List
 
+import streamlit as st
+
 from api import get_all_breeds
-from utils import get_unique_breed_images, get_breed_from_url
-from random import randint, sample, shuffle
 from db import Player
+from utils import get_unique_breed_images, get_breed_from_url
 
 
 @dataclass
