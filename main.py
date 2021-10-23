@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import streamlit as st
 
+from db import Player
 from games.which_image import render_game as render_which_image_game
 from games.which_breed import render_game as render_which_breed_game
 from games.mosaic import render_game as render_mosaic_game
@@ -45,20 +46,38 @@ class MainState:
 if 'main_state' not in st.session_state:
     st.session_state['main_state'] = MainState()
 
+if 'player_name' not in st.session_state:
+    st.session_state['player_name'] = ""
+
 
 def on_game_select_button(name):
-    st.session_state.main_state.selected_game = name
+    player_name = st.session_state.player_name
+    if len(player_name) > 0:
+        if not Player.exists(player_name):
+            Player.create(player_name)
+
+        st.session_state.main_state.selected_game = name
 
 def on_back_to_main_button():
     st.session_state.main_state.selected_game = None
 
 
 if st.session_state.main_state.selected_game is None:
+    st.set_page_config(layout='centered')
     st.title("Dog Quiz - the quiz with dogs!")
     st.markdown("---")
 
     _, col, _ = st.columns(3)
-    col.markdown("Select a game mode:")
+    player_name = col.text_input("What's your name?", st.session_state.player_name)
+    st.session_state.player_name = player_name
+    if len(player_name) == 0:
+        col.markdown("Please enter a name.")
+    elif Player.exists(player_name):
+        col.markdown(f"Welcome back, *{player_name}*!")
+    else:
+        col.markdown(f"Hi *{player_name}*, you are new!")
+
+    col.markdown("##### Select a game mode:")
     for name in game_renderers:
         col.button(name, on_click=on_game_select_button, args=[name])
 

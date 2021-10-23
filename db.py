@@ -1,9 +1,10 @@
 from typing import List, Any, Dict
-
+import streamlit as st
 import pymongo
 from dataclasses import dataclass, asdict
 
-client = pymongo.MongoClient("localhost:27017")
+#client = pymongo.MongoClient("localhost:27017")
+client = pymongo.MongoClient(st.secrets["DB_URL"])
 db = client.get_database("odd")
 
 players = db.get_collection("players")
@@ -32,6 +33,18 @@ class Player:
     def get_by_name(name):
         p = players.find_one({'name': name})
         return Player(**_remove_id(p))
+
+    @staticmethod
+    def exists(name):
+        p = players.find_one({'name': name})
+        return p is not None
+
+    @staticmethod
+    def create(name):
+        if not Player.exists(name):
+            p = Player(name, [], {})
+            players.insert_one(asdict(p))
+
 
     def add_confusion(self, guessed, correct):
         self.confusions.append(Confusion(guessed, correct))

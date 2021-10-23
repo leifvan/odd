@@ -54,7 +54,7 @@ def render_game():
     # prepare state
 
     if 'game_state' not in st.session_state or not isinstance(st.session_state.game_state, GameState):
-        player = Player.get_by_name("Leif")
+        player = Player.get_by_name(st.session_state.player_name)
         if __name__ not in player.game_data:
             player.game_data[__name__] = dict()
 
