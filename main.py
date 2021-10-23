@@ -2,11 +2,6 @@ from dataclasses import dataclass
 
 import streamlit as st
 
-# from utils import get_unique_breed_images, get_breed_from_url, Round
-# import api
-# from random import randint
-# import numpy as np
-# import plotly.express as px
 from games.which_image import render_game as render_which_image_game
 from games.which_breed import render_game as render_which_breed_game
 from games.mosaic import render_game as render_mosaic_game
@@ -31,10 +26,9 @@ def on_game_select_button(name):
     st.session_state.main_state.selected_game = name
 
 
-st.set_page_config(layout='wide')
-
 if st.session_state.main_state.selected_game is None:
     st.title("Dog Quiz - the quiz with dogs!")
+
     """Select a game mode:"""
 
     for name in game_renderers:
