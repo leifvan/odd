@@ -89,7 +89,7 @@ def render_game():
     def _on_new_game_button():
         st.session_state.game_state = GameState(game_state.player).next_round()
 
-    st.title("MOSAICS!")
+    st.title("Dog Mosaics!")
 
     response = requests.get(game_state.url)
     img = np.array(Image.open(BytesIO(response.content)))
