@@ -54,7 +54,7 @@ def get_highscore_list(game_name):
     query = [
         {'$group': {'_id': '$name', 'score': {'$first': f'$game_data.{game_name}.highscore'}}},
         {'$sort': {'score': -1}},
-        {'$limit': 3}
+        {'$limit': 10}
     ]
     highscore_list = players.aggregate(query)
     return [{"name": r['_id'], "score": r['score']} for r in highscore_list]
