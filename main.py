@@ -97,7 +97,7 @@ if st.session_state.main_state.selected_game is None:
 
         col.caption("a random doggo")
         random_url = get_random_images(1)[0]
-        col.image(random_url)
+        col.image(random_url, use_column_width=True)
 
 else:
     if st.session_state.main_state.selected_game == 'Which dog is that breed?':
