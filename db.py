@@ -3,7 +3,7 @@ import streamlit as st
 import pymongo
 from dataclasses import dataclass, asdict
 
-#client = pymongo.MongoClient("localhost:27017")
+# client = pymongo.MongoClient("localhost:27017")
 client = pymongo.MongoClient(st.secrets["DB_URL"])
 db = client.get_database("odd")
 
@@ -45,6 +45,17 @@ class Player:
             p = Player(name, [], {})
             players.insert_one(asdict(p))
 
-
     def add_confusion(self, guessed, correct):
         self.confusions.append(Confusion(guessed, correct))
+
+
+
+def get_highscore_list(game_name):
+    query = [
+        {'$group': {'_id': '$name', 'score': {'$first': f'$game_data.{game_name}.highscore'}}},
+        {'$sort': {'score': -1}},
+        {'$limit': 3}
+    ]
+    highscore_list = players.aggregate(query)
+    return [{"name": r['_id'], "score": r['score']} for r in highscore_list]
+

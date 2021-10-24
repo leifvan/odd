@@ -32,3 +32,7 @@ def get_unique_breed_images(num):
 
     assert len(uniques) == num
     return list(uniques.values())
+
+
+def get_game_name(name):
+    return name.replace(".", "_")

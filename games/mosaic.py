@@ -7,7 +7,7 @@ import requests
 from io import BytesIO
 from api import get_random_images, get_all_breeds
 from db import Player
-from utils import get_breed_from_url
+from utils import get_breed_from_url, get_game_name
 import matplotlib.pyplot as plt
 from random import sample, shuffle
 
@@ -15,6 +15,8 @@ from random import sample, shuffle
 MOSAIC_LEVEL_ZOOMS = [16, 32, 48, 64, 96, 128]
 MOSAIC_LEVEL_SCORES = [100, 50, 20, 10, 5, 1]
 MOSAIC_LEVEL_NEW_ZOOMS = [2, 1, 0, 0, 0, 0]
+
+GAME_NAME = get_game_name(__name__)
 
 
 @dataclass
@@ -55,11 +57,11 @@ def render_game():
 
     if 'game_state' not in st.session_state or not isinstance(st.session_state.game_state, GameState):
         player = Player.get_by_name(st.session_state.player_name)
-        if __name__ not in player.game_data:
-            player.game_data[__name__] = dict()
+        if GAME_NAME not in player.game_data:
+            player.game_data[GAME_NAME] = dict()
 
-        if 'highscore' not in player.game_data[__name__]:
-            player.game_data[__name__]['highscore'] = 0
+        if 'highscore' not in player.game_data[GAME_NAME]:
+            player.game_data[GAME_NAME]['highscore'] = 0
 
         st.session_state['game_state'] = GameState(player).next_round()
 
@@ -75,8 +77,9 @@ def render_game():
             game_state.score += MOSAIC_LEVEL_SCORES[game_state.mosaic_level]
             game_state.zooms += MOSAIC_LEVEL_NEW_ZOOMS[game_state.mosaic_level]
         elif game_state.zooms == 0:
-            if game_state.score > game_state.player.game_data[__name__]['highscore']:
-                game_state.player.game_data[__name__]['highscore'] = game_state.score
+            game_state.zooms = -1
+            if game_state.score > game_state.player.game_data[GAME_NAME]['highscore']:
+                game_state.player.game_data[GAME_NAME]['highscore'] = game_state.score
                 st.balloons()
 
         game_state.player.add_confusion(
@@ -92,6 +95,9 @@ def render_game():
         st.session_state.game_state = GameState(game_state.player).next_round()
 
     st.title("Dog Mosaics!")
+    st.markdown("  \n")
+    st.markdown("  \n")
+    st.markdown("  \n")
 
     response = requests.get(game_state.url)
     img = np.array(Image.open(BytesIO(response.content)))
@@ -107,23 +113,21 @@ def render_game():
     left_col, right_col = st.columns([1, 2])
     right_col.pyplot(fig=plt.gcf())
 
-    if game_state.zooms == 0:
-        if game_state.chosen_breed is None:
-            left_col.markdown("No zooms left!")
-        else:
+    if game_state.zooms == -1:
+        if game_state.chosen_breed is not None:
             left_col.markdown("Game Over :face_with_rolling_eyes:")
             left_col.button("New game", on_click=_on_new_game_button)
     else:
         left_col.caption("Zooms")
         left_col.markdown(":mag:"*game_state.zooms)
     left_col.metric("Score", game_state.score)
-    left_col.metric("Highscore", game_state.player.game_data[__name__]['highscore'])
+    left_col.metric("Highscore", game_state.player.game_data[GAME_NAME]['highscore'])
 
     if game_state.chosen_breed is None:
         if game_state.zooms > 0 and game_state.mosaic_level < len(MOSAIC_LEVEL_ZOOMS) - 1:
             left_col.button("Enhance!", on_click=_on_enhance_button)
-        else:
-            left_col.markdown("Fully enhanced!")
+        elif game_state.zooms == 0:
+            left_col.markdown("No zooms left!")
 
         left_col.markdown("---")
 

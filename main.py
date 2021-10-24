@@ -7,6 +7,8 @@ from games.which_image import render_game as render_which_image_game
 from games.which_breed import render_game as render_which_breed_game
 from games.mosaic import render_game as render_mosaic_game
 from background import background_base64
+from highscores import render_highscores
+from api import get_random_images
 
 game_renderers = {
     'Which dog is that breed?': render_which_image_game,
@@ -65,21 +67,37 @@ def on_back_to_main_button():
 if st.session_state.main_state.selected_game is None:
     st.set_page_config(layout='centered')
     st.title("Dog Quiz - the quiz with dogs!")
-    st.markdown("---")
+    st.markdown("powered by https://dog.ceo/dog-api")
+    #st.container()
 
     _, col, _ = st.columns(3)
+
     player_name = col.text_input("What's your name?", st.session_state.player_name)
     st.session_state.player_name = player_name
-    if len(player_name) == 0:
-        col.markdown("Please enter a name.")
-    elif Player.exists(player_name):
-        col.markdown(f"Welcome back, *{player_name}*!")
-    else:
-        col.markdown(f"Hi *{player_name}*, you are new!")
 
-    col.markdown("##### Select a game mode:")
-    for name in game_renderers:
-        col.button(name, on_click=on_game_select_button, args=[name])
+
+    if len(player_name) > 0:
+        if Player.exists(player_name):
+            col.markdown(f"Welcome back, *{player_name}*!")
+        else:
+            col.markdown(f"Hi *{player_name}*, you are new!")
+
+        col.markdown("##### Select a game mode:")
+        for name in game_renderers:
+            col.button(name, on_click=on_game_select_button, args=[name])
+
+        st.markdown("  \n")
+        st.markdown("  \n")
+        st.markdown("  \n")
+        render_highscores()
+    else:
+        col.markdown(
+            "Welcome to **Dog Quiz - the quiz with dogs**! This is a collection of dog-themed "
+            "quizzes, because dogs are the best! Enter your name above and enjoy!")
+
+        col.caption("a random doggo")
+        random_url = get_random_images(1)[0]
+        col.image(random_url)
 
 else:
     if st.session_state.main_state.selected_game == 'Which dog is that breed?':

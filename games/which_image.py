@@ -1,10 +1,11 @@
 import streamlit as st
 from dataclasses import dataclass
 from typing import List
-from utils import get_unique_breed_images, get_breed_from_url
+from utils import get_unique_breed_images, get_breed_from_url, get_game_name
 from random import randint
 from db import Player
 
+GAME_NAME = get_game_name(__name__)
 
 @dataclass
 class GameState:
@@ -42,11 +43,11 @@ def render_game():
     if 'game_state' not in st.session_state or not isinstance(st.session_state.game_state, GameState):
         # get player
         player = Player.get_by_name(st.session_state.player_name)
-        if __name__ not in player.game_data:
-            player.game_data[__name__] = dict()
+        if GAME_NAME not in player.game_data:
+            player.game_data[GAME_NAME] = dict()
 
-        if 'highscore' not in player.game_data[__name__]:
-            player.game_data[__name__]['highscore'] = 0
+        if 'highscore' not in player.game_data[GAME_NAME]:
+            player.game_data[GAME_NAME]['highscore'] = 0
 
         st.session_state['game_state'] = GameState(player).next_round()
 
@@ -67,8 +68,8 @@ def render_game():
         )
 
         if st.session_state.game_state.lives == 0:
-            if game_state.score > game_state.player.game_data[__name__]['highscore']:
-                game_state.player.game_data[__name__]['highscore'] = game_state.score
+            if game_state.score > game_state.player.game_data[GAME_NAME]['highscore']:
+                game_state.player.game_data[GAME_NAME]['highscore'] = game_state.score
                 st.balloons()
 
         game_state.player.persist()
@@ -100,7 +101,7 @@ def render_game():
     cols[3].metric("Round", game_state.round)
     combo_text = f"{game_state.combo}x combo!" if game_state.combo > 1 else ""
     cols[4].metric("Score", game_state.score, combo_text)
-    cols[5].metric("Highscore", game_state.player.game_data[__name__]['highscore'])
+    cols[5].metric("Highscore", game_state.player.game_data[GAME_NAME]['highscore'])
 
     if game_state.selected_id is None:
         letters = "ABCD"
