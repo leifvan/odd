@@ -65,7 +65,7 @@ def on_back_to_main_button():
 
 
 if st.session_state.main_state.selected_game is None:
-    st.set_page_config(layout='centered')
+    st.set_page_config(layout='centered', page_icon=":dog2:", page_title="Dog Quiz - The quiz with dogs!")
     # st.title("Dog Quiz - the quiz with dogs!")
     st.image("images/header.png", use_column_width=True)
 
@@ -101,9 +101,9 @@ if st.session_state.main_state.selected_game is None:
 
 else:
     if st.session_state.main_state.selected_game == 'Which dog is that breed?':
-        st.set_page_config(layout='wide')
+        st.set_page_config(layout='wide', page_icon=":dog2:", page_title="Dog Quiz - The quiz with dogs!")
     else:
-        st.set_page_config(layout='centered')
+        st.set_page_config(layout='centered', page_icon=":dog2:", page_title="Dog Quiz - The quiz with dogs!")
 
     st.button("Back to main menu", on_click=on_back_to_main_button)
     game_renderers[st.session_state.main_state.selected_game]()
