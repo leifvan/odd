@@ -11,7 +11,6 @@ from utils import get_breed_from_url, get_game_name
 import matplotlib.pyplot as plt
 from random import sample, shuffle
 
-
 MOSAIC_LEVEL_ZOOMS = [16, 32, 48, 64, 96, 128]
 MOSAIC_LEVEL_SCORES = [100, 50, 20, 10, 5, 1]
 MOSAIC_LEVEL_NEW_ZOOMS = [2, 1, 0, 0, 0, 0]
@@ -52,7 +51,6 @@ class GameState:
 
 
 def render_game():
-
     # prepare state
 
     if 'game_state' not in st.session_state or not isinstance(st.session_state.game_state, GameState):
@@ -111,6 +109,13 @@ def render_game():
     plt.imshow(img[::step, ::step])
     plt.axis('off')
     left_col, right_col = st.columns([1, 2])
+
+    if game_state.chosen_breed is None:
+        if game_state.zooms > 0 and game_state.mosaic_level < len(MOSAIC_LEVEL_ZOOMS) - 1:
+            right_col.button("Enhance!", on_click=_on_enhance_button)
+        elif game_state.zooms == 0:
+            right_col.markdown("No zooms left!")
+
     right_col.pyplot(fig=plt.gcf())
 
     if game_state.zooms == -1:
@@ -119,20 +124,17 @@ def render_game():
             left_col.button("New game", on_click=_on_new_game_button)
     else:
         left_col.caption("Zooms")
-        left_col.markdown(":mag:"*game_state.zooms)
+        left_col.markdown(":mag:" * game_state.zooms)
     left_col.metric("Score", game_state.score)
     left_col.metric("Highscore", game_state.player.game_data[GAME_NAME]['highscore'])
 
     if game_state.chosen_breed is None:
-        if game_state.zooms > 0 and game_state.mosaic_level < len(MOSAIC_LEVEL_ZOOMS) - 1:
-            left_col.button("Enhance!", on_click=_on_enhance_button)
-        elif game_state.zooms == 0:
-            left_col.markdown("No zooms left!")
-
-        left_col.markdown("---")
 
         for breed in game_state.breeds:
             left_col.button(breed, on_click=_on_choose_button, args=[breed])
+
+        left_col.markdown("---")
+
     else:
         left_col.markdown("---")
 
