@@ -87,21 +87,21 @@ def render_game():
 
     cols = st.columns(7)
 
+    cols[1].caption("Lives")
+    cols[1].markdown(":dog2:" * game_state.lives)
+    cols[2].metric("Round", game_state.round)
+    combo_text = f"{game_state.combo}x combo!" if game_state.combo > 1 else ""
+    cols[3].metric("Score", game_state.score, combo_text)
+    cols[4].metric("Highscore", game_state.player.game_data[GAME_NAME]['highscore'])
+
     if game_state.lives > 0:
         if game_state.selected_id is None:
             correct_breed = game_state.breeds[game_state.correct_id]
-            cols[1].markdown(f"##### Which one is the")
-            cols[1].markdown(f"### {correct_breed}?")
+            cols[5].markdown(f"##### Which one is the")
+            cols[5].markdown(f"### {correct_breed}?")
     else:
-        cols[1].markdown("Game Over :face_with_rolling_eyes:")
-        cols[1].button("New game", on_click=_on_new_game_button)
-
-    cols[2].caption("Lives")
-    cols[2].markdown(":dog2:" * game_state.lives)
-    cols[3].metric("Round", game_state.round)
-    combo_text = f"{game_state.combo}x combo!" if game_state.combo > 1 else ""
-    cols[4].metric("Score", game_state.score, combo_text)
-    cols[5].metric("Highscore", game_state.player.game_data[GAME_NAME]['highscore'])
+        cols[5].markdown("Game Over :face_with_rolling_eyes:")
+        cols[5].button("New game", on_click=_on_new_game_button)
 
     if game_state.selected_id is None:
         letters = "ABCD"
@@ -109,6 +109,7 @@ def render_game():
         for i, (col, letter, url) in enumerate(zip(cols, letters, game_state.urls)):
             col.button(f"choose {letter}", on_click=_on_choose_button, args=[i])
             col.image(url, use_column_width=True)
+            col.markdown("---")
     else:
         #cols = st.columns([2 if i == game_state.correct_id else 1 for i in range(4)])
         cols = st.columns(4)
@@ -121,4 +122,5 @@ def render_game():
                 col.text(breed)
 
             col.image(url, use_column_width=True)
+            col.markdown("---")
 

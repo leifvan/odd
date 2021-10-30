@@ -57,5 +57,5 @@ def get_highscore_list(game_name):
         {'$limit': 10}
     ]
     highscore_list = players.aggregate(query)
-    return [{"name": r['_id'], "score": r['score']} for r in highscore_list]
+    return [{"name": r['_id'], "score": r['score']} for r in highscore_list if r['score'] is not None]
 

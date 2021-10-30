@@ -16,6 +16,7 @@ game_renderers = {
     'Dog mosaics!': render_mosaic_game
 }
 
+
 # import base64
 
 
@@ -38,8 +39,6 @@ def set_png_as_page_bg(png_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-
-
 @dataclass
 class MainState:
     selected_game: str = None
@@ -60,21 +59,20 @@ def on_game_select_button(name):
 
         st.session_state.main_state.selected_game = name
 
+
 def on_back_to_main_button():
     st.session_state.main_state.selected_game = None
 
 
 if st.session_state.main_state.selected_game is None:
     st.set_page_config(layout='centered')
-    st.title("Dog Quiz - the quiz with dogs!")
-    st.markdown("powered by https://dog.ceo/dog-api")
-    #st.container()
+    # st.title("Dog Quiz - the quiz with dogs!")
+    st.image("images/header.png", use_column_width=True)
 
     _, col, _ = st.columns(3)
 
     player_name = col.text_input("What's your name?", st.session_state.player_name)
     st.session_state.player_name = player_name
-
 
     if len(player_name) > 0:
         if Player.exists(player_name):
@@ -99,6 +97,8 @@ if st.session_state.main_state.selected_game is None:
         random_url = get_random_images(1)[0]
         col.image(random_url, use_column_width=True)
 
+    col.markdown("<small>powered by https://dog.ceo/dog-api</small>", unsafe_allow_html=True)
+
 else:
     if st.session_state.main_state.selected_game == 'Which dog is that breed?':
         st.set_page_config(layout='wide')
@@ -107,6 +107,5 @@ else:
 
     st.button("Back to main menu", on_click=on_back_to_main_button)
     game_renderers[st.session_state.main_state.selected_game]()
-
 
 set_png_as_page_bg('images/background_light.png')
